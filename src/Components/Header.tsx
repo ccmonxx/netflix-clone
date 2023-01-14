@@ -1,9 +1,9 @@
-import { motion, useAnimation } from "framer-motion";
-import { useState } from "react";
+import { motion, useAnimation, useScroll } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
-const Nav = styled.nav`
+const Nav = styled(motion.nav)`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -97,6 +97,15 @@ const logoVariants = {
 	},
 };
 
+const navVariants = {
+	top: {
+		backgroundColor: "rgba(0, 0, 0, 0)",
+	},
+	scroll: {
+		backgroundColor: "rgba(0, 0, 0, 1)",
+	},
+};
+
 function Header() {
 	/*
 	 * 🔻 [애니메이션] Item 클릭시 움직이는 Circle
@@ -118,6 +127,15 @@ function Header() {
 	 * 함수 내부에서 조건에 맞게 구현할 수 있다( true/false = visible/invisible )
 	 */
 	const inputAnimation = useAnimation();
+	/**
+	 * 🔻 useScroll : scroll 좌표를 이용해 nav 배경색을 변하게 하는 애니메이션
+	 * useEffect : 가장 먼저 렌더링 하도록 설정한다
+	 * scroll.get() : 스크롤 좌표를 확인할 수 있다
+	 * useAnimation : 조건에 따라 다르게 적용할 애니메이션을 만들기
+	 * Nav 태그와 애니메이션 연결(motion.nav & Nav component)
+	 */
+	const navAnimation = useAnimation();
+	const { scrollY } = useScroll();
 	const toggleSearch = () => {
 		if (searchOpen) {
 			inputAnimation.start({
@@ -130,9 +148,18 @@ function Header() {
 		}
 		setSearchOpen((prev) => !prev);
 	};
+	useEffect(() => {
+		scrollY.onChange(() => {
+			if (scrollY.get() > 70) {
+				navAnimation.start("scroll");
+			} else {
+				navAnimation.start("top");
+			}
+		});
+	}, [scrollY, navAnimation]);
 
 	return (
-		<Nav>
+		<Nav variants={navVariants} initial={"top"} animate={navAnimation}>
 			<Col>
 				<Logo
 					variants={logoVariants}

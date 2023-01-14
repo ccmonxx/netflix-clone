@@ -7,6 +7,7 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
   body {
+    height: 110vh;
     background-color: ${(props) => props.theme.white.darker};
     color: ${(props) => props.theme.black.darker};
     font-family: 'Source Sans Pro', sans-serif;
