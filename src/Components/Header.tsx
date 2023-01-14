@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
@@ -60,6 +60,19 @@ const Search = styled.span`
 	}
 `;
 
+const Input = styled(motion.input)`
+	position: absolute;
+	right: 0px;
+	z-index: -1;
+	transform-origin: right center;
+	padding: 5px 10px;
+	padding-left: 40px;
+	border: 1px solid ${(props) => props.theme.white.lighter};
+	background-color: transparent;
+	color: white;
+	font-size: 16px;
+`;
+
 const Circle = styled(motion.span)`
 	position: absolute;
 	margin: 0 auto;
@@ -70,12 +83,6 @@ const Circle = styled(motion.span)`
 	bottom: -5px;
 	border-radius: 5px;
 	background-color: ${(props) => props.theme.red};
-`;
-
-const Input = styled(motion.input)`
-	position: absolute;
-	left: -150px;
-	transform-origin: right center;
 `;
 
 const logoVariants = {
@@ -105,7 +112,24 @@ function Header() {
 	 * toggleSearch : 토글할때마다 true / false 를 반환하는함수를 아이콘의 클릭이벤트에 적용한다
 	 */
 	const [searchOpen, setSearchOpen] = useState(false);
-	const toggleSearch = () => setSearchOpen((prev) => !prev);
+	/**
+	 * 🔻 useAnimation : 특정 애니메이션을 만들 수 있는 hook
+	 * 기존 input 태그의 애니메이션 animate={{ scaleX: searchOpen ? 1 : 0 }}
+	 * 함수 내부에서 조건에 맞게 구현할 수 있다( true/false = visible/invisible )
+	 */
+	const inputAnimation = useAnimation();
+	const toggleSearch = () => {
+		if (searchOpen) {
+			inputAnimation.start({
+				scaleX: 0,
+			});
+		} else {
+			inputAnimation.start({
+				scaleX: 1,
+			});
+		}
+		setSearchOpen((prev) => !prev);
+	};
 
 	return (
 		<Nav>
@@ -153,7 +177,8 @@ function Header() {
 						></path>
 					</motion.svg>
 					<Input
-						animate={{ scaleX: searchOpen ? 1 : 0 }}
+						initial={{ scaleX: 0 }}
+						animate={inputAnimation}
 						transition={{ type: "linear" }}
 						placeholder="Search for movie or tv show.."
 					/>
