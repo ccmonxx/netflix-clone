@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
@@ -50,6 +51,9 @@ const Item = styled.li`
 `;
 
 const Search = styled.span`
+	display: flex;
+	align-items: center;
+	position: relative;
 	color: white;
 	svg {
 		height: 25px;
@@ -66,6 +70,12 @@ const Circle = styled(motion.span)`
 	bottom: -5px;
 	border-radius: 5px;
 	background-color: ${(props) => props.theme.red};
+`;
+
+const Input = styled(motion.input)`
+	position: absolute;
+	left: -150px;
+	transform-origin: right center;
 `;
 
 const logoVariants = {
@@ -89,6 +99,14 @@ function Header() {
 	 */
 	const homeMatch = useRouteMatch("/");
 	const tvMatch = useRouteMatch("/tv");
+	/*
+	 * 🔻 [애니메이션] search 아이콘 클릭하면 활성화 되는 input태그
+	 * useState : boolean타입의 상태를 만든다
+	 * toggleSearch : 토글할때마다 true / false 를 반환하는함수를 아이콘의 클릭이벤트에 적용한다
+	 */
+	const [searchOpen, setSearchOpen] = useState(false);
+	const toggleSearch = () => setSearchOpen((prev) => !prev);
+
 	return (
 		<Nav>
 			<Col>
@@ -120,7 +138,10 @@ function Header() {
 			</Col>
 			<Col>
 				<Search>
-					<svg
+					<motion.svg
+						onClick={toggleSearch}
+						animate={{ x: searchOpen ? -185 : 0 }}
+						transition={{ type: "linear" }}
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +151,12 @@ function Header() {
 							d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
 							clipRule="evenodd"
 						></path>
-					</svg>
+					</motion.svg>
+					<Input
+						animate={{ scaleX: searchOpen ? 1 : 0 }}
+						transition={{ type: "linear" }}
+						placeholder="Search for movie or tv show.."
+					/>
 				</Search>
 			</Col>
 		</Nav>
