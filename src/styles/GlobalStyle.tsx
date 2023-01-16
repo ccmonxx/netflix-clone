@@ -8,8 +8,8 @@ export const GlobalStyle = createGlobalStyle`
   }
   body {
     height: 110vh;
-    background-color: ${(props) => props.theme.white.darker};
-    color: ${(props) => props.theme.black.darker};
+    background-color: ${(props) => props.theme.black.darker};
+    color: ${(props) => props.theme.white.darker};
     font-family: 'Source Sans Pro', sans-serif;
     font-weight: 300;
     line-height: 1.2;
