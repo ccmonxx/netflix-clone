@@ -80,6 +80,15 @@ const Info = styled(motion.div)`
 	}
 `;
 
+const Overlay = styled(motion.div)`
+	position: fixed;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	/* opacity: 0; */
+`;
+
 const rowVariants = {
 	hidden: {
 		x: window.outerWidth - 5,
@@ -148,12 +157,19 @@ function Home() {
 	 *  3. useRouteMatch   : 설정한 경로의 데이터 정보를(객체타입) 갖는다
 	 *  4. AnimatePresence : 애니메이션 컴포넌트 만들기
 	 *  5. layoutId        : Box & AnimatePresence 컴포넌트 연결하기
+	 *
+	 *  🔻 Behind the scene - Overlay & BigMovie 컴포넌트
+	 *  - 활성화된 컴포넌트의 뒤로 배경을 어둡게 하기
+	 *  - 배경을 클릭했을때 활성화된 컴포넌트를 안보이게 하기
+	 *
+	 *  1. fragment : Overlay컴포넌트 생성한다
+	 *  2. onOverlayClick : 클릭이벤트가 실행되면 push로 경로를 변경하여 컴포넌트를 비활성화 시킨다
+	 *
 	 */
 	const history = useHistory();
 	const bigMovieMatch = useRouteMatch<{ movieId: string }>(
 		"/movies/:movieId"
 	);
-	console.log(bigMovieMatch);
 	const onBoxClicked = (movieId: number) => {
 		history.push(`/movies/${movieId}`);
 	};
@@ -203,6 +219,7 @@ function Home() {
 		}
 	};
 	const toggleLeaving = () => setLeaving((prev) => !prev);
+	const onOverlayClick = () => history.push("/");
 
 	return (
 		<Wrapper>
@@ -264,19 +281,13 @@ function Home() {
 					</Slider>
 					<AnimatePresence>
 						{bigMovieMatch ? (
-							<motion.div
-								layoutId={bigMovieMatch.params.movieId}
-								style={{
-									position: "absolute",
-									top: 50,
-									left: 0,
-									right: 0,
-									margin: "0 auto",
-									width: "40vw",
-									height: "80vh",
-									backgroundColor: "lightblue",
-								}}
-							/>
+							<>
+								<Overlay
+									onClick={onOverlayClick}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+								/>
+							</>
 						) : null}
 					</AnimatePresence>
 				</>
