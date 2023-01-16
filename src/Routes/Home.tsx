@@ -96,7 +96,30 @@ const BigMovie = styled(motion.div)`
 	margin: 0 auto;
 	width: 40vw;
 	height: 80vh;
-	background-color: lightcoral;
+	border-radius: 15px;
+	overflow: hidden;
+	background-color: ${(props) => props.theme.black.lighter};
+`;
+
+const BigCover = styled.div`
+	width: 100%;
+	height: 400px;
+	background-position: center center;
+	background-size: cover;
+`;
+
+const BigTitle = styled.h3`
+	position: relative;
+	top: -80px;
+	padding: 20px;
+	font-size: 46px;
+	color: ${(props) => props.theme.white.lighter};
+`;
+
+const BigOverview = styled.p`
+	position: relative;
+	top: -80px;
+	color: ${(props) => props.theme.white.lighter};
 `;
 
 const rowVariants = {
@@ -175,6 +198,11 @@ function Home() {
 	 *  1. fragment : Overlay컴포넌트 생성한다
 	 *  2. onOverlayClick : 클릭이벤트가 실행되면 push로 경로를 변경하여 컴포넌트를 비활성화 시킨다
 	 *  3. useScroll - scrollY : 스크롤의 y축 위치를 구한다
+	 *  4. layoutId 추가하여 애니메이션 효과 적용하기
+	 *
+	 *  🔻 Get Details → /movie/{movie_id} : 기존 데이터보다 더 많은 데이터 요청가능(API DOC)
+	 *  1. clickedMovie : movie.id가 일치한 데이터를 담을 상수
+	 *  2. 상세보기 컴포넌트 스타일
 	 */
 	const history = useHistory();
 	const bigMovieMatch = useRouteMatch<{ movieId: string }>(
@@ -231,6 +259,14 @@ function Home() {
 	};
 	const toggleLeaving = () => setLeaving((prev) => !prev);
 	const onOverlayClick = () => history.push("/");
+	const clickedMovie =
+		bigMovieMatch?.params.movieId &&
+		data?.results.find(
+			(movie) => movie.id === +bigMovieMatch.params.movieId
+		);
+
+	console.log("match ", bigMovieMatch);
+	console.log("click ", clickedMovie);
 
 	return (
 		<Wrapper>
@@ -298,8 +334,28 @@ function Home() {
 									animate={{ opacity: 1 }}
 									exit={{ opacity: 0 }}
 								/>
-								<BigMovie style={{ top: scrollY.get() + 100 }}>
-									BigMovie
+								<BigMovie
+									layoutId={bigMovieMatch.params.movieId}
+									style={{ top: scrollY.get() + 100 }}
+								>
+									{clickedMovie && (
+										<>
+											<BigCover
+												style={{
+													backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImagePath(
+														clickedMovie.backdrop_path,
+														"w500"
+													)})`,
+												}}
+											/>
+											<BigTitle>
+												{clickedMovie.title}
+											</BigTitle>
+											<BigOverview>
+												{clickedMovie.overview}
+											</BigOverview>
+										</>
+									)}
 								</BigMovie>
 							</>
 						) : null}
