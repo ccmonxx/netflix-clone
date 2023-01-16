@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { getMovies, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utils";
 import { useState } from "react";
@@ -86,7 +86,17 @@ const Overlay = styled(motion.div)`
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
-	/* opacity: 0; */
+	opacity: 0;
+`;
+
+const BigMovie = styled(motion.div)`
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	width: 40vw;
+	height: 80vh;
+	background-color: lightcoral;
 `;
 
 const rowVariants = {
@@ -161,15 +171,16 @@ function Home() {
 	 *  🔻 Behind the scene - Overlay & BigMovie 컴포넌트
 	 *  - 활성화된 컴포넌트의 뒤로 배경을 어둡게 하기
 	 *  - 배경을 클릭했을때 활성화된 컴포넌트를 안보이게 하기
-	 *
+	 *  - 화면 스크롤 위치를 기준으로 컴포넌트 정렬시키기
 	 *  1. fragment : Overlay컴포넌트 생성한다
 	 *  2. onOverlayClick : 클릭이벤트가 실행되면 push로 경로를 변경하여 컴포넌트를 비활성화 시킨다
-	 *
+	 *  3. useScroll - scrollY : 스크롤의 y축 위치를 구한다
 	 */
 	const history = useHistory();
 	const bigMovieMatch = useRouteMatch<{ movieId: string }>(
 		"/movies/:movieId"
 	);
+	const { scrollY } = useScroll();
 	const onBoxClicked = (movieId: number) => {
 		history.push(`/movies/${movieId}`);
 	};
@@ -287,6 +298,9 @@ function Home() {
 									animate={{ opacity: 1 }}
 									exit={{ opacity: 0 }}
 								/>
+								<BigMovie style={{ top: scrollY.get() + 100 }}>
+									BigMovie
+								</BigMovie>
 							</>
 						) : null}
 					</AnimatePresence>
