@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getMovies, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utils";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 const Wrapper = styled.div`
 	background: black;
@@ -145,8 +145,15 @@ function Home() {
 	 *  🔻 Box컴포넌트를 클릭하면 새로운 레이아웃의 컴포넌트를 보여주기
 	 *  1. onBoxClicked : 파라미터로 movieId를 갖는 클릭이벤트 함수를 Box에 적용한다
 	 *  2. useHistory   : push기능으로 클릭한 컴포넌트에 movieId를 추가한 경로를 만들어준다
+	 *  3. useRouteMatch   : 설정한 경로의 데이터 정보를(객체타입) 갖는다
+	 *  4. AnimatePresence : 애니메이션 컴포넌트 만들기
+	 *  5. layoutId        : Box & AnimatePresence 컴포넌트 연결하기
 	 */
 	const history = useHistory();
+	const bigMovieMatch = useRouteMatch<{ movieId: string }>(
+		"/movies/:movieId"
+	);
+	console.log(bigMovieMatch);
 	const onBoxClicked = (movieId: number) => {
 		history.push(`/movies/${movieId}`);
 	};
@@ -237,6 +244,7 @@ function Home() {
 											onClick={() =>
 												onBoxClicked(movie.id)
 											}
+											layoutId={movie.id + ""}
 											variants={boxVariants}
 											initial="normal"
 											whileHover="hover"
@@ -254,6 +262,23 @@ function Home() {
 							</Row>
 						</AnimatePresence>
 					</Slider>
+					<AnimatePresence>
+						{bigMovieMatch ? (
+							<motion.div
+								layoutId={bigMovieMatch.params.movieId}
+								style={{
+									position: "absolute",
+									top: 50,
+									left: 0,
+									right: 0,
+									margin: "0 auto",
+									width: "40vw",
+									height: "80vh",
+									backgroundColor: "lightblue",
+								}}
+							/>
+						) : null}
+					</AnimatePresence>
 				</>
 			)}
 		</Wrapper>
