@@ -12,6 +12,7 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'Source Sans Pro', sans-serif;
     font-weight: 300;
     line-height: 1.2;
+    overflow-x: hidden;
   }
   a {
     text-decoration: none;

@@ -17,14 +17,14 @@ const Loader = styled.div`
 	height: 20vh;
 `;
 
-const Banner = styled.div<{ bgPhoto: string }>`
+const Banner = styled.div<{ $bgPhoto: string }>`
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
 	height: 100vh;
 	padding: 60px;
 	background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)),
-		url(${(props) => props.bgPhoto});
+		url(${(props) => props.$bgPhoto});
 	background-size: cover;
 `;
 
@@ -48,27 +48,51 @@ const Row = styled(motion.div)`
 	position: absolute;
 	grid-template-columns: repeat(6, 1fr);
 	width: 100%;
-	gap: 10px;
+	gap: 5px;
 `;
 
-const Box = styled(motion.div)`
+const Box = styled(motion.div)<{ $bgPhoto: string }>`
 	height: 200px;
+	background-image: url(${(props) => props.$bgPhoto});
+	background-position: center center;
+	background-size: cover;
 	background-color: white;
-	color: lightcoral;
 	font-size: 50px;
 `;
 
 const rowVariants = {
 	hidden: {
-		x: window.outerWidth,
+		x: window.outerWidth - 5,
 	},
 	visible: {
 		x: 0,
 	},
 	exit: {
-		x: -window.outerWidth,
+		x: -window.outerWidth + 5,
 	},
 };
+
+/**
+ * 🔻 1 Slider - 6 Box Layout & input Data
+ *  - offset : 1 Slider당 보여줄 movie의 갯수
+ *  - index  : 스크롤 이동 버튼을 클릭할 떄마다 1씩 증가
+ *  - overflow-x:hidden : 스크롤바(x축) 비활성화
+ *
+ *  # custom props Error
+ *  - 대문자 혹은 어떠한 이유로 스타일컴포넌트의 props가 DOM으로 전달되지 않아 발생하는 에러
+ *  - $ 를 props의 내부값 앞에 표기해준다
+ *
+ *  1. Box Component
+ *  slice 1 → 배너 moive 제외한다
+ *  slice 2 → 슬라이드 실행 후 다음 데이터의 순서를 만든다(offset * index + offset)
+ *  map     → 컴포넌트로 데이터를 전달한다
+ *  bgPhoto → 컴포넌트의 속성으로 이미지를 저장 & 타입스크립트 정의는 styled-components에서 한다
+ *
+ *  2. 마지막 슬라이드 이후 첫 슬라이드로 이동
+ *  - totleMoives : 데이터의 총 갯수
+ *  - maxIndex    : 데이터의 총 갯수를 6으로 나누고 내림(정수)
+ */
+const offset = 6;
 
 function Home() {
 	/**
@@ -108,9 +132,13 @@ function Home() {
 	 */
 	const [leaving, setLeaving] = useState(false);
 	const increaseIndex = () => {
-		if (leaving) return;
-		setLeaving(true);
-		setIndex((prev) => prev + 1);
+		if (data) {
+			if (leaving) return;
+			toggleLeaving();
+			const totalMovies = data.results.length - 1;
+			const maxIndex = Math.floor(totalMovies / offset - 1);
+			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+		}
 	};
 	const toggleLeaving = () => setLeaving((prev) => !prev);
 
@@ -122,7 +150,7 @@ function Home() {
 				<>
 					<Banner
 						onClick={increaseIndex}
-						bgPhoto={makeImagePath(
+						$bgPhoto={makeImagePath(
 							data?.results[0].backdrop_path || ""
 						)}
 					>
@@ -142,9 +170,21 @@ function Home() {
 								exit="exit"
 								transition={{ type: "tween", duration: 1 }}
 							>
-								{[1, 2, 3, 4, 5, 6].map((i) => (
-									<Box key={i}>{i}</Box>
-								))}
+								{data?.results
+									.slice(1)
+									.slice(
+										offset * index,
+										offset * index + offset
+									)
+									.map((movie) => (
+										<Box
+											key={movie.id}
+											$bgPhoto={makeImagePath(
+												movie.backdrop_path,
+												"w500"
+											)}
+										/>
+									))}
 							</Row>
 						</AnimatePresence>
 					</Slider>
