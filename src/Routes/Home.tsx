@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getMovies, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utils";
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const Wrapper = styled.div`
 	background: black;
@@ -141,6 +142,15 @@ const offset = 6;
 
 function Home() {
 	/**
+	 *  🔻 Box컴포넌트를 클릭하면 새로운 레이아웃의 컴포넌트를 보여주기
+	 *  1. onBoxClicked : 파라미터로 movieId를 갖는 클릭이벤트 함수를 Box에 적용한다
+	 *  2. useHistory   : push기능으로 클릭한 컴포넌트에 movieId를 추가한 경로를 만들어준다
+	 */
+	const history = useHistory();
+	const onBoxClicked = (movieId: number) => {
+		history.push(`/movies/${movieId}`);
+	};
+	/**
 	 * 🔻 react-query를 사용하여 API Data 불러오기
 	 *  1. install  : @tanstack/react-query (기존 react-query과 React@18은 충돌)
 	 *  2. Provider : QueryClient생성, QueryClientProvider연결한디
@@ -223,11 +233,14 @@ function Home() {
 									)
 									.map((movie) => (
 										<Box
+											key={movie.id}
+											onClick={() =>
+												onBoxClicked(movie.id)
+											}
 											variants={boxVariants}
 											initial="normal"
 											whileHover="hover"
 											transition={{ type: "tween" }}
-											key={movie.id}
 											$bgPhoto={makeImagePath(
 												movie.backdrop_path,
 												"w500"
